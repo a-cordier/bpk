@@ -27,7 +27,7 @@ bpk -d <src_dir> -o <file_name>.h -n <namespace>
 ### Use in your project
 
   - Add the output file to your project
-  - Use `<namespace>.getResource(const char* key)` to get access to your file
+  - Use `<namespace>::getResource(const char* key)` to get access to your file
 
 Files are named after their relative path inside their resource directory
 
@@ -48,7 +48,7 @@ resources
 Running:
 
 ```sh
-bpk -d ./resources -o resources.h -n Resource
+bpk -d ./resources -o resources.h -n resources
 ```
 
   - Will generate the following `resources.h` file
@@ -59,7 +59,7 @@ bpk -d ./resources -o resources.h -n Resource
 #include <map>
 #include <utility>
 
-namespace Resources {
+namespace resources {
 
 	namespace {
 
@@ -83,6 +83,6 @@ namespace Resources {
 ```cpp
 #include "resources.h"
 
-auto data = Resources.getResource("svg/play.svg")
+auto data = resources::getResource("svg/play.svg")
 ```
 
