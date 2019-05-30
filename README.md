@@ -1,6 +1,6 @@
 ## bpk
 
-bpk packages files in a directory to make them available in your project as binary resources.
+bpk packages files as binary resources availables in your project
 
 ### Requirements
 
