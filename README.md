@@ -1,4 +1,4 @@
-## CPP Binary Loader
+## bpk
 
 bpk packages files in a directory to make them available in your project as binary resources.
 
