@@ -7,8 +7,8 @@ bpk packages files in a resources directory to make them available in your proje
 [conan](https://docs.conan.io/en/latest/installation.html) is required for dependency management.
 
 ```sh
-git clone https://github.com/a-cordier/cpp-binary-loader
-cd cpp-binary-loader
+git clone https://github.com/a-cordier/bpk.git
+cd bpk
 mkdir build
 cd build
 cmake ..
@@ -18,7 +18,7 @@ make
 ### Package your files
 
 ```sh
-./binary-loader -d <src_dir> -o <file_name>.h -n <namespace>
+bpk -d <src_dir> -o <file_name>.h -n <namespace>
 ```
 
 ### Use in your project
@@ -28,9 +28,9 @@ make
 
 File are identified by their relative path inside their resource directory
 
-Example:
+### Example
 
-Assuming the following resource directory:
+  - Assuming the following resource directory
 
 ```
 resources
@@ -48,7 +48,7 @@ Running:
 bpk -d ./resources -o resources.h -n Resource
 ```
 
-Will generate the following `resources.h` file:
+  - Will generate the following `resources.h` file
 
 ```cpp
 #include <iostream>
@@ -61,22 +61,10 @@ namespace Resources {
 	namespace {
 
 		std::map<std::string, std::vector<char> > data = {
-			{ "svg/previous.svg", {
-					/* Data chunks */
-				}
-			},
-			{ "svg/pause.svg", {
-					/* Data chunks */
-				}
-			},
-			{ "svg/play.svg", {
-			        /* Data chunks */
-				}
-			},
-			{ "svg/next.svg", {
-                    /* Data chunks */
-				}
-			},
+			{ "svg/previous.svg", { /* Data chunks */ } },
+			{ "svg/pause.svg", { /* Data chunks */ } },
+			{ "svg/play.svg", { /* Data chunks */ } },
+			{ "svg/next.svg", { /* Data chunks */ } },
 		};
 	}
 
@@ -87,7 +75,7 @@ namespace Resources {
 }
 ```
 
-Resources being accessed the following way:
+  - Resources being accessed the following way
 
 ```cpp
 #include "resources.h"
