@@ -1,13 +1,16 @@
 ## CPP Binary Loader
 
-bpk packages files in a resources directory to make them available in your project as binary resources.
+bpk packages files in a directory to make them available in your project as binary resources.
 
-### Build & Install (with cmake)
+### Requirements
 
-[conan](https://docs.conan.io/en/latest/installation.html) is required for dependency management.
+  - [cmake](https://cmake.org/install/)
+  - [conan](https://docs.conan.io/en/latest/installation.html)
+
+### Download & Build
 
 ```sh
-git clone https://github.com/a-cordier/bpk.git
+git clone --recursive https://github.com/a-cordier/bpk.git
 cd bpk
 mkdir build
 cd build
@@ -26,7 +29,7 @@ bpk -d <src_dir> -o <file_name>.h -n <namespace>
   - Add the output file to your project
   - Use `<namespace>.getResource(const char* key)` to get access to your file
 
-File are identified by their relative path inside their resource directory
+Files are named after their relative path inside their resource directory
 
 ### Example
 
