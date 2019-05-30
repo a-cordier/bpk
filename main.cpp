@@ -6,12 +6,14 @@
 #include <utility>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 struct Hex {
     unsigned char c;
+
     explicit Hex(unsigned char c) : c(c) {}
 };
 
@@ -30,7 +32,7 @@ void include(std::ostream &o, const std::vector<std::string> &headers) {
     }
 }
 
-void emptyLine(std::ostream &o, int n = 1) {
+void new_line(std::ostream &o, int n = 1) {
     for (auto i = 0; i < n; i++) {
         o << std::endl;
     }
@@ -44,27 +46,27 @@ std::ostream &indent(std::ostream &o, int level) {
 }
 
 template<typename Func>
-void defineNamespace(std::ostream &o, const std::string &name, Func cb, int idtLevel = 0) {
+void define_ns(std::ostream &o, const std::string &name, Func cb, int idtLevel = 0) {
     indent(o, idtLevel) << "namespace " << name << (name.empty() ? "" : " ") << "{" << std::endl;
     cb(o);
     indent(o, idtLevel) << "}" << std::endl;
 }
 
 template<typename Func>
-void defineDataMap(std::ostream &o, const std::string &name, Func cb, int idtLevel) {
-    indent(o, idtLevel) << "std::map<std::string, std::vector<unsigned char> > " << name << " = {" << std::endl;
+void define_map(std::ostream &o, const std::string &name, Func cb, int idtLevel) {
+    indent(o, idtLevel) << "std::map<std::string, std::vector<char> > " << name << " = {" << std::endl;
     cb(o);
     indent(o, idtLevel) << "};" << std::endl;
 }
 
 template<typename Func>
-void defineDataEntry(std::ostream &o, const std::string &name, Func cb, int idtLevel) {
+void define_entry(std::ostream &o, const std::string &name, Func cb, int idtLevel) {
     indent(o, idtLevel) << "{ \"" << name << "\", ";
     cb(o);
     indent(o, idtLevel) << "}," << std::endl;
 }
 
-void defineDataVector(std::ostream &o, const std::vector<uint8_t> &data, int idtLevel) {
+void define_data(std::ostream &o, const std::vector<uint8_t> &data, int idtLevel) {
     o << "{";
     for (std::vector<uint8_t>::size_type i = 0; i != data.size(); i++) {
         if (i % 16 == 0) {
@@ -77,32 +79,28 @@ void defineDataVector(std::ostream &o, const std::vector<uint8_t> &data, int idt
     indent(o, idtLevel) << "}" << std::endl;
 }
 
-void defineData(std::ostream &o, std::vector<File> files, int idtLevel) {
+void define_resource(std::ostream &o, std::vector<File> files, int idtLevel) {
     for (auto file: files) {
         std::ifstream stream(file.path, std::ios::in | std::ios::binary);
         std::vector<uint8_t> data((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
         if (data.size() > 0) {
-            defineDataEntry(o, file.id, [&](std::ostream &o) { defineDataVector(o, data, idtLevel + 1); }, idtLevel);
+            define_entry(o, file.id, [&](std::ostream &o) { define_data(o, data, idtLevel + 1); }, idtLevel);
         }
 
         stream.close();
     }
 }
 
-void defineDataAccessor(std::ostream &o, std::string mapName, int idtLevel) {
+void define_getter(std::ostream &o, std::string mapName, int idtLevel) {
     indent(o, idtLevel) << "char* getResource(const char* resourceName) {" << std::endl;
-    indent(o, idtLevel + 1) << "auto data = " << mapName << ".find(resourceName);" << std::endl;
-    indent(o, idtLevel + 1) << "if (data ==  " << mapName << ".end()) {" << std::endl;
-    indent(o, idtLevel + 1 + 1) << "return nullptr;" << std::endl;
-    indent(o, idtLevel + 1) << "}" << std::endl;
-    indent(o, idtLevel + 1) << "return (char*) data->second.data();" << std::endl;
+    indent(o, idtLevel + 1) << "auto it = " << mapName << ".find(resourceName);" << std::endl;
+    indent(o, idtLevel + 1) << "return it == " << mapName << ".end() ? nullptr : it->second.data();" << std::endl;
     indent(o, idtLevel) << "}" << std::endl;
 }
 
-void generateDataClass(std::ostream &o, std::vector<File> files) {
-    auto namespaceName = "BinaryData";
-    auto mapName = "dataMap";
+void generateDataClass(std::ostream &o, std::vector<File> files, std::string ns) {
+    auto map_name = "data";
 
     include(o, {
             "<iostream>",
@@ -110,45 +108,42 @@ void generateDataClass(std::ostream &o, std::vector<File> files) {
             "<map>",
             "<utility>"
     });
-    emptyLine(o);
+    new_line(o);
 
-    defineNamespace(o, namespaceName, [&](std::ostream &o) {
-        emptyLine(o);
+    define_ns(o, ns, [&](std::ostream &o) {
+        new_line(o);
 
-        defineNamespace(o, "", [&](std::ostream &o) {
-            emptyLine(o);
+        define_ns(o, "", [&](std::ostream &o) {
+            new_line(o);
 
-            defineDataMap(o, mapName, [&](std::ostream &o) {
-                defineData(o, files, 3);
+            define_map(o, map_name, [&](std::ostream &o) {
+                define_resource(o, files, 3);
             }, 2);
         }, 1);
 
-        emptyLine(o);
+        new_line(o);
 
-        defineDataAccessor(o, mapName, 1);
+        define_getter(o, map_name, 1);
 
     }, 0);
 
 }
 
-fs::path strip_root(const fs::path& p) {
-    const fs::path& parent_path = p.parent_path();
-    if (parent_path.empty() || parent_path.string() == "/")
-        return fs::path();
-    else
-        return strip_root(parent_path) / p.filename();
-}
-
-
 int main(int argc, char **argv) {
-    std::vector<std::string> resourceDirs;
+    std::vector<std::string> src_dirs;
+    std::string output;
+    std::string ns;
 
     po::options_description desc("Usage");
 
     desc.add_options()
             ("help,h", "Print help messages")
-            ("dir,d", po::value<std::vector<std::string> >(&resourceDirs)->required(),
-             "Specifies the resource directories");
+            ("dir,d", po::value<std::vector<std::string> >(&src_dirs)->required(),
+             "Source directories")
+            ("output,o", po::value<std::string>(&output)->required(),
+                    "Output file")
+            ("namespace,n", po::value<std::string>(&ns)->required(),
+                    "Namespace used to expose data");
 
     po::variables_map vm;
 
@@ -167,23 +162,25 @@ int main(int argc, char **argv) {
 
     std::vector<File> files;
 
-    for (auto path: resourceDirs) {
-        if (!fs::exists(path) && !fs::is_directory(path)) {
-            std::cerr << "No such directory " << path << std::endl;
+    for (auto src: src_dirs) {
+        if (!fs::exists(src) && !fs::is_directory(src)) {
+            std::cerr << "No such directory " << src << std::endl;
         }
-        for (fs::recursive_directory_iterator end, dir(path); dir != end; ++dir ) {
+
+        for (fs::recursive_directory_iterator end, dir(src); dir != end; ++dir) {
             if (fs::is_regular_file(*dir)) {
-                File file { strip_root(*dir).string(), (*dir).path().string() };
-                files.emplace_back(file);
+                auto path = (*dir).path().string();
+                auto id = boost::regex_replace(path, boost::regex("^\\.*/*(.*)"), "$1");
+                files.emplace_back(File{id, path});
             }
         }
     }
 
 
     std::ofstream ofs;
-    ofs.open("BinaryData.h");
+    ofs.open(output);
 
-    generateDataClass(ofs, files);
+    generateDataClass(ofs, files, ns);
 
     ofs.close();
 

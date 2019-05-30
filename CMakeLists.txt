@@ -19,6 +19,7 @@ conan_cmake_run(
         REQUIRES
         boost_program_options/1.69.0@bincrafters/stable
         boost_filesystem/1.69.0@bincrafters/stable
+        boost_regex/1.69.0@bincrafters/stable
         CMAKE_TARGETS
         BASIC_SETUP
         KEEP_RPATHS
@@ -34,6 +35,7 @@ target_link_libraries(
         PRIVATE
         CONAN_PKG::boost_program_options
         CONAN_PKG::boost_filesystem
+        CONAN_PKG::boost_regex
 )
 
 
