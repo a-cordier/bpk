@@ -90,6 +90,8 @@ namespace Resources {
 Resources being accessed the following way:
 
 ```cpp
+#include "resources.h"
+
 auto data = Resources.getResource("svg/play.svg")
 ```
 

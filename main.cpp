@@ -141,9 +141,9 @@ int main(int argc, char **argv) {
             ("dir,d", po::value<std::vector<std::string> >(&src_dirs)->required(),
              "Source directories")
             ("output,o", po::value<std::string>(&output)->required(),
-                    "Output file")
+             "Output file")
             ("namespace,n", po::value<std::string>(&ns)->required(),
-                    "Namespace used to expose data");
+             "Namespace used to expose data");
 
     po::variables_map vm;
 
@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
         for (fs::recursive_directory_iterator end, dir(src); dir != end; ++dir) {
             if (fs::is_regular_file(*dir)) {
                 auto path = (*dir).path().string();
-                auto id = boost::regex_replace(path, boost::regex("^\\.*/*(.*)"), "$1");
+                auto id = boost::regex_replace(path, boost::regex(src + "/*(.*)"), "$1");
                 files.emplace_back(File{id, path});
             }
         }
