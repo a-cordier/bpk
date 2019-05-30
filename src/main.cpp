@@ -46,60 +46,60 @@ std::ostream &indent(std::ostream &o, int level) {
 }
 
 template<typename Func>
-void define_ns(std::ostream &o, const std::string &name, Func cb, int idtLevel = 0) {
-    indent(o, idtLevel) << "namespace " << name << (name.empty() ? "" : " ") << "{" << std::endl;
+void define_ns(std::ostream &o, const std::string &name, Func cb, int idt = 0) {
+    indent(o, idt) << "namespace " << name << (name.empty() ? "" : " ") << "{" << std::endl;
     cb(o);
-    indent(o, idtLevel) << "}" << std::endl;
+    indent(o, idt) << "}" << std::endl;
 }
 
 template<typename Func>
-void define_map(std::ostream &o, const std::string &name, Func cb, int idtLevel) {
-    indent(o, idtLevel) << "std::map<std::string, std::vector<char> > " << name << " = {" << std::endl;
+void define_map(std::ostream &o, const std::string &name, Func cb, int idt) {
+    indent(o, idt) << "std::map<std::string, std::vector<char> > " << name << " = {" << std::endl;
     cb(o);
-    indent(o, idtLevel) << "};" << std::endl;
+    indent(o, idt) << "};" << std::endl;
 }
 
 template<typename Func>
-void define_entry(std::ostream &o, const std::string &name, Func cb, int idtLevel) {
-    indent(o, idtLevel) << "{ \"" << name << "\", ";
+void define_entry(std::ostream &o, const std::string &name, Func cb, int idt) {
+    indent(o, idt) << "{ \"" << name << "\", ";
     cb(o);
-    indent(o, idtLevel) << "}," << std::endl;
+    indent(o, idt) << "}," << std::endl;
 }
 
-void define_data(std::ostream &o, const std::vector<uint8_t> &data, int idtLevel) {
+void define_chunks(std::ostream &o, const std::vector <uint8_t> &data, int idt) {
     o << "{";
     for (std::vector<uint8_t>::size_type i = 0; i != data.size(); i++) {
         if (i % 16 == 0) {
             o << std::endl;
-            indent(o, idtLevel + 1);
+            indent(o, idt + 1);
         }
         o << Hex(data[i]) << ", ";
     }
     o << std::endl;
-    indent(o, idtLevel) << "}" << std::endl;
+    indent(o, idt) << "}" << std::endl;
 }
 
-void define_resource(std::ostream &o, std::vector<File> files, int idtLevel) {
+void define_resources(std::ostream &o, std::vector <File> files, int idt) {
     for (auto file: files) {
         std::ifstream stream(file.path, std::ios::in | std::ios::binary);
         std::vector<uint8_t> data((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
         if (data.size() > 0) {
-            define_entry(o, file.id, [&](std::ostream &o) { define_data(o, data, idtLevel + 1); }, idtLevel);
+            define_entry(o, file.id, [&](std::ostream &o) { define_chunks(o, data, idt + 1); }, idt);
         }
 
         stream.close();
     }
 }
 
-void define_getter(std::ostream &o, std::string mapName, int idtLevel) {
-    indent(o, idtLevel) << "char* getResource(const char* resourceName) {" << std::endl;
-    indent(o, idtLevel + 1) << "auto it = " << mapName << ".find(resourceName);" << std::endl;
-    indent(o, idtLevel + 1) << "return it == " << mapName << ".end() ? nullptr : it->second.data();" << std::endl;
-    indent(o, idtLevel) << "}" << std::endl;
+void define_getter(std::ostream &o, std::string map_name, int idt) {
+    indent(o, idt) << "char* getResource(const char* resourceName) {" << std::endl;
+    indent(o, idt + 1) << "auto it = " << map_name << ".find(resourceName);" << std::endl;
+    indent(o, idt + 1) << "return it == " << map_name << ".end() ? nullptr : it->second.data();" << std::endl;
+    indent(o, idt) << "}" << std::endl;
 }
 
-void generateDataClass(std::ostream &o, std::vector<File> files, std::string ns) {
+void generate(std::ostream &o, std::vector <File> files, std::string ns) {
     auto map_name = "data";
 
     include(o, {
@@ -117,7 +117,7 @@ void generateDataClass(std::ostream &o, std::vector<File> files, std::string ns)
             new_line(o);
 
             define_map(o, map_name, [&](std::ostream &o) {
-                define_resource(o, files, 3);
+                define_resources(o, files, 3);
             }, 2);
         }, 1);
 
@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
     std::ofstream ofs;
     ofs.open(output);
 
-    generateDataClass(ofs, files, ns);
+    generate(ofs, files, ns);
 
     ofs.close();
 
