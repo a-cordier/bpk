@@ -9,9 +9,7 @@ elseif (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif ()
 
-set(SCRIPTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
-
-list(APPEND CMAKE_MODULE_PATH "${SCRIPTS_DIR}/cmake-conan")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-conan")
 
 include(conan)
 
