@@ -98,11 +98,11 @@ include(ExternalProject)
 
 ExternalProject_Add(
         bpk
-        GIT_REPOSITORY "https://github.com/a-cordier/bpk.git"
-        GIT_TAG v1.0.0
+	GIT_REPOSITORY    "https://github.com/a-cordier/bpk.git"
+        GIT_TAG           "v1.0.0"
         SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/bpk-src"
         BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/bpk-build"
-        INSTALL_COMMAND ""
+        INSTALL_COMMAND   ""
 )
 
 set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
