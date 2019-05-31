@@ -86,3 +86,37 @@ namespace resources {
 auto data = resources::getResource("svg/play.svg")
 ```
 
+### Integrating with CMAKE
+
+Integration with CMAKE for automating generation at build time may be achieved using the 
+[ExternalProject](https://cmake.org/cmake/help/latest/module/ExternalProject.html) module
+
+#### CMAKE integration sample
+
+```cmake
+include(ExternalProject)
+
+ExternalProject_Add(
+        bpk
+        GIT_REPOSITORY "https://github.com/a-cordier/bpk.git"
+        GIT_TAG v1.0.0
+        SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/bpk-src"
+        BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/bpk-build"
+        INSTALL_COMMAND ""
+)
+
+set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
+set(RESOURCES_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/resources.h")
+
+add_custom_command(
+        TARGET bpk
+        POST_BUILD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND "${CMAKE_CURRENT_BINARY_DIR}/bpk-build/bin/bpk" 
+	        "-o" "${RESOURCES_FILE}" 
+		"-d" "${RESOURCES_DIR}" 
+		"-n" "resources"
+        COMMENT "Running bpk to generate resources file"
+)
+
+```
