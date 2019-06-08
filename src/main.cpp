@@ -27,6 +27,8 @@ inline std::ostream &operator<<(std::ostream &o, const Hex &h) {
 }
 
 void include(std::ostream &o, const std::vector<std::string> &headers) {
+    o << "#pragma once" << std::endl;
+    o << std::endl;
     for (auto header: headers) {
         o << "#include " << header << std::endl;
     }
