@@ -95,7 +95,7 @@ void define_resources(std::ostream &o, std::vector <File> files, int idt) {
 }
 
 void define_getter(std::ostream &o, std::string map_name, int idt) {
-    indent(o, idt) << "char* getResource(const char* resourceName) {" << std::endl;
+    indent(o, idt) << "inline char* getResource(const char* resourceName) {" << std::endl;
     indent(o, idt + 1) << "auto it = " << map_name << ".find(resourceName);" << std::endl;
     indent(o, idt + 1) << "return it == " << map_name << ".end() ? nullptr : it->second.data();" << std::endl;
     indent(o, idt) << "}" << std::endl;
