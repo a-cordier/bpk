@@ -101,6 +101,13 @@ void define_getter(std::ostream &o, std::string map_name, int idt) {
     indent(o, idt) << "}" << std::endl;
 }
 
+void define_sizeof(std::ostream &o, std::string map_name, int idt) {
+    indent(o, idt) << "std::vector::size_type sizeof(const char* resourceName) {" << std::endl;
+    indent(o, idt + 1) << "auto it = " << map_name << ".find(resourceName);" << std::endl;
+    indent(o, idt + 1) << "return it == " << map_name << ".end() ? 0 : it->second.size();" << std::endl;
+    indent(o, idt) << "}" << std::endl;
+}
+
 void generate(std::ostream &o, std::vector <File> files, std::string ns) {
     auto map_name = "data";
 
@@ -126,6 +133,10 @@ void generate(std::ostream &o, std::vector <File> files, std::string ns) {
         new_line(o);
 
         define_getter(o, map_name, 1);
+
+        new_line(o);
+
+        define_sizeof(o, map_name, 1);
 
     }, 0);
 
