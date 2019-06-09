@@ -102,7 +102,7 @@ void define_getter(std::ostream &o, std::string map_name, int idt) {
 }
 
 void define_sizeof(std::ostream &o, std::string map_name, int idt) {
-    indent(o, idt) << "inline std::vector::size_type size(const char* name) {" << std::endl;
+    indent(o, idt) << "inline std::vector<char>::size_type size(const char* name) {" << std::endl;
     indent(o, idt + 1) << "auto it = " << map_name << ".find(name);" << std::endl;
     indent(o, idt + 1) << "return it == " << map_name << ".end() ? 0 : it->second.size();" << std::endl;
     indent(o, idt) << "}" << std::endl;

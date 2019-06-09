@@ -76,7 +76,7 @@ namespace resources {
     		return it == data.end() ? nullptr : it->second.data();
     	}
     
-    inline std::vector::size_type size(const char* name) {
+    inline std::vector<char>::size_type size(const char* name) {
         auto it = data.find(name);
         return it == data.end() ? 0 : it->second.size();
     }
