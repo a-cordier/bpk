@@ -71,10 +71,15 @@ namespace resources {
 		};
 	}
 
-	char* getResource(const char* resourceName) {
-		auto it = data.find(resourceName);
-		return it == data.end() ? nullptr : it->second.data();
-	}
+	inline char* get(const char* name) {
+    		auto it = data.find(name);
+    		return it == data.end() ? nullptr : it->second.data();
+    	}
+    
+    inline std::vector::size_type sizeof(const char* name) {
+        auto it = data.find(name);
+        return it == data.end() ? 0 : it->second.size();
+    }
 }
 ```
 
@@ -83,7 +88,7 @@ namespace resources {
 ```cpp
 #include "resources.h"
 
-auto data = resources::getResource("svg/play.svg")
+auto data = resources::get("svg/play.svg")
 ```
 
 ### Integrating with CMAKE
